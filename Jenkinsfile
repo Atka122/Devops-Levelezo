@@ -19,7 +19,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 sh 'docker login --username=atka122 --password=$docker_password'
-                sh 'docker push atka122/levelezo-example
+                sh 'docker push atka122/levelezo-example'
             }
         }
         stage('Docker Staging') {
