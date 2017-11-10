@@ -6,15 +6,37 @@ pipeline {
                 git url: 'https://github.com/Atka122/Devops-Levelezo.git'
             }
         }
-        stage('Compile') {
+        stage('Packaging') {
             steps {
-                sh './gradlew compileJava'
+                sh './gradlew build'
             }
         }
-        stage('Unit Test') {
+        stage('Docker Build') {
             steps {
-                sh './gradlew test'
+                sh 'docker build -t atka122/levelezo-example .'
             }
+        }
+        stage('Docker Push') {
+            steps {
+                sh 'docker login --username=atka122 --password=$docker_password'
+                sh 'docker push atka122/levelezo-example
+            }
+        }
+        stage('Docker Staging') {
+            steps {
+                sh 'docker run -d --rm -p 8765:8080 --name levelezo atka122/levelezo-example'
+            }
+        }
+        stage('Acceptance Test') {
+            steps {
+                sleep 30
+                sh './acceptance_test.sh'
+            }
+        }
+    }
+    post {
+        always {
+            sh 'docker stop levelezo'
         }
     }
 }
